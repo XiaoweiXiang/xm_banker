@@ -1,7 +1,9 @@
-import os 
+import os
+import sys
+sys.path.append('.')
 import numpy as np
 import pandas as pd
-import config, load_o_data
+from library import config, load_o_data
 
 
 df_train = load_o_data.load_df_train()

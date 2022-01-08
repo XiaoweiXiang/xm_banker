@@ -1,6 +1,6 @@
 import os
 
-dirpath = os.path.dirname(__file__)
+dirpath = os.path.dirname(os.path.dirname(__file__))
 
 # data
 data_o_dir = os.path.join(dirpath, 'data/A榜数据')

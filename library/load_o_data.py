@@ -1,9 +1,8 @@
 import os
 import logging
 from datetime import datetime
-import numpy as np
 import pandas as pd
-import config
+from . import config
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
