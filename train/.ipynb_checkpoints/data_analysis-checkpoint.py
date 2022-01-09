@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append('..')
+sys.path.append('.')
 import numpy as np
 import pandas as pd
 from library import config, load_o_data

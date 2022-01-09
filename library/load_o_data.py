@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 import pandas as pd
 from . import config
+# import config
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
@@ -88,4 +89,172 @@ def load_df_user_assets():
     return df_user_assets
 
 
+# df_assets_a
+def load_df_assets_a1():
+
+    df_assets_a = pd.read_csv(os.path.join(config.data_o_dir, '其他数据表/g.csv'))
+    df_assets_a[['g'+str(x) for x in range(1, 7)]] = df_assets_a[['g'+str(x) for x in range(1, 7)]].astype('int8')
+    df_assets_a.rename(columns={
+        'g1': 'price', 
+        'g2': 'cycle', 
+        'g3': 'model', 
+        'g4': 'risk_level', 
+        'g5': 'has_rollover', 
+        'g6': 'allowed_change_dividend', 
+        'g7': 'prod_type', 
+        'g8': 'hold_days', 
+        'g9': 'dt',
+    }, inplace=True)
+    # df_assets_a['dt'] = [datetime.strptime(str(x), '%y%m%d') for x in df_assets_a['dt']]
+    logging.info('df_assets_a1 shape={0}'.format(df_assets_a.shape))
+
+    return df_assets_a
+
+
+# df_assets_a2
+def load_df_assets_a2():
+
+    df_assets_a = pd.read_csv(os.path.join(config.data_o_dir, '其他数据表/k.csv'))
+    df_assets_a[['k'+str(x) for x in range(1, 11)]] = df_assets_a[['k'+str(x) for x in range(1, 11)]].fillna(-1)
+    df_assets_a[['k'+str(x) for x in range(1, 6)]] = df_assets_a[['k'+str(x) for x in range(1, 6)]].astype('int8')
+    df_assets_a[['k10']] = df_assets_a[['k10']].astype('int8')
+    # df_assets_a['dt'] = [datetime.strptime(str(x), '%y%m%d') for x in df_assets_a['dt']]
+    logging.info('df_assets_a2 shape={0}'.format(df_assets_a.shape))
+
+    return df_assets_a
+
+# df_assets
+def load_df_assets(): 
+    
+    df_assets_a1 = load_df_assets_a1()
+    df_assets_a2 = load_df_assets_a2()
+    df_assets = pd.merge(df_assets_a2, df_assets_a1, how='outer', on=['prod_code'])
+
+    logging.info('df_assets shape={0}'.format(df_assets.shape))
+
+    return df_assets
+
+
+# df_trade
+def load_df_trade_a():
+
+    df_trade = pd.read_csv(os.path.join(config.data_o_dir, '其他数据表/n.csv'))
+    df_trade.info(memory_usage='deep')
+    df_trade[['n2']] = df_trade[['n2']].fillna(-1)
+    df_trade[['n7']] = df_trade[['n7']].applymap(lambda x: str(x).replace(',', ''))
+    df_trade[['n2', 'n3', 'n8', 'n9']] = df_trade[['n2', 'n3', 'n8', 'n9']].astype('int8')
+    df_trade[['n6', 'n7', 'n10']] = df_trade[['n6', 'n7', 'n10']].astype('float')
+    df_trade['n11'] = [datetime.strptime(str(x), '%Y%m%d') for x in df_trade['n11']]
+    df_trade.rename(columns={
+        'n1': 'trade_id',
+        'n2': 'trade_code',
+        'n3': 'trade_channel',
+        'core_cust_id': 'core_cust_id',
+        'prod_code': 'prod_code',
+        'n6': 'trade_net_value',
+        'n7': 'trade_apply_amt',
+        'n8': 'trade_fund_status',
+        'n9': 'trade_status',
+        'n10': 'trade_total_amt',
+        'n11': 'deal_date',
+    }, inplace=True)
+    print(df_trade.describe())
+    df_trade.info(memory_usage='deep')
+
+    return df_trade
+
+
+def load_df_trade_b():
+
+    df_trade = pd.read_csv(os.path.join(config.data_o_dir, '其他数据表/o.csv'))
+    df_trade.info(memory_usage='deep')
+    df_trade[['o2', 'o3', 'o8', 'o9']] = df_trade[['o2', 'o3', 'o8', 'o9']].astype('int8')
+    df_trade[['o7', 'o10', 'o11']] = df_trade[['o7', 'o10', 'o11']].applymap(lambda x: str(x).replace(',', '')).astype('float')
+    df_trade['o12'] = [datetime.strptime(str(x), '%Y%m%d') for x in df_trade['o12']]
+    df_trade.rename(columns={
+        'o1': 'trade_id',
+        'o2': 'trade_code',
+        'o3': 'trade_channel',
+        'core_cust_id': 'core_cust_id',
+        'prod_code': 'prod_code',
+        'o6': 'trade_net_value',
+        'o7': 'trade_apply_amt',
+        'o8': 'trade_status',
+        'o9': 'trade_fund_status',
+        'o10': 'trade_total_amt',
+        'o11': 'trade_excess_amt',
+        'o12': 'deal_date',
+    }, inplace=True)
+    print(df_trade.head())
+    print(df_trade.describe())
+    df_trade.info(memory_usage='deep')
+
+    return df_trade
+
+
+def load_df_trade_c():
+
+    df_trade = pd.read_csv(os.path.join(config.data_o_dir, '其他数据表/q.csv'))
+    df_trade.info(memory_usage='deep')
+    df_trade[['q7']] = df_trade[['q7']].applymap(lambda x: str(x).replace(',', ''))
+    df_trade[['q6', 'q7']] = df_trade[['q6', 'q7']].astype('float')
+    df_trade[['q2', 'q3', 'q8', 'q9']] = df_trade[['q2', 'q3', 'q8', 'q9']].astype('int8')
+    df_trade['q10'] = [datetime.strptime(str(x), '%Y%m%d') for x in df_trade['q10']]
+    df_trade.rename(columns={
+        'q1': 'trade_id',
+        'q2': 'trade_code',
+        'q3': 'trade_channel',
+        'core_cust_id': 'core_cust_id',
+        'prod_code': 'prod_code',
+        'q6': 'trade_net_value',
+        'q7': 'trade_apply_amt',
+        'q8': 'trade_fund_status',
+        'q9': 'trade_status',
+        'q10': 'deal_date',
+    }, inplace=True)
+    df_trade.info(memory_usage='deep')
+
+    return df_trade
+
+
+def load_df_trade_d():
+
+    df_trade = pd.read_csv(os.path.join(config.data_o_dir, '其他数据表/p.csv'))
+    df_trade.info(memory_usage='deep')
+    df_trade[['p3', 'p10']] = df_trade[['p3', 'p10']].fillna(-1)
+    df_trade[['p7']] = df_trade[['p7']].applymap(lambda x: str(x).replace(',', ''))
+    df_trade[['p6', 'p7', 'p8']] = df_trade[['p6', 'p7', 'p8']].astype('float')
+    df_trade[['p2', 'p3', 'p9', 'p10', 'p11']] = df_trade[['p2', 'p3', 'p9', 'p10', 'p11']].astype('int8')
+    df_trade['p12'] = [datetime.strptime(str(x), '%Y%m%d') for x in df_trade['p12']]
+    df_trade.rename(columns={
+        'p1': 'trade_id',
+        'p2': 'trade_code',
+        'p3': 'trade_channel',
+        'core_cust_id': 'core_cust_id',
+        'prod_code': 'prod_code',
+        'p6': 'trade_net_value',
+        'p7': 'trade_apply_amt',
+        'p8': 'trade_discount_rate',
+        'p9': 'trade_status',
+        'p10': 'trade_fund_status',
+        'p11': 'trade_fee_rate',
+        'p12': 'deal_date',
+    }, inplace=True)
+    df_trade.info(memory_usage='deep')
+
+    return df_trade
+
+
+def load_df_trade():
+
+    df_trade_a = load_df_trade_a()
+    df_trade_b = load_df_trade_b()
+    df_trade_c = load_df_trade_c()
+    df_trade_d = load_df_trade_d()
+    df_trade = pd.concat([df_trade_a, df_trade_b, df_trade_c, df_trade_d], axis=0, join='outer')
+    print(df_trade.describe())
+    print(df_trade.head())
+    df_trade.info(memory_usage='deep')
+
+    return df_trade
 
