@@ -71,7 +71,6 @@ class DataAna(object):
 
 
 
-
 if __name__ == '__main__':
 
     path = '/Users/jiangdehao/Desktop/project/kaggle/data/A榜数据/'
