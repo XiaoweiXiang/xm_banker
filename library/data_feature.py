@@ -5,9 +5,10 @@
 本文档主要用于特征衍生，输入原始数据路径，输出csv特征数据
 '''
 import sys
-from data_ana import *
+from .data_ana import *
 import pandas as pd
 import numpy as np
+import pickle
 
 class DataFeature(object):
     """
@@ -15,7 +16,7 @@ class DataFeature(object):
     basci_info_feature：合并客户信息表、客户风险表、资产信息表
     """
 
-    def __init__(self,path,train=True):
+    def __init__(self, path, train=True):
         self.path = path
         self.train = train
 
@@ -54,15 +55,17 @@ class DataFeature(object):
             result = result.merge(self.myDataAna.load_data(),on='core_cust_id')
         
         #去重
+        result[['f'+str(x) for x in range(2, 22)]] = result[['f'+str(x) for x in range(2, 22)]].applymap(lambda x: str(x).replace(',', ''))
+        result[['f'+str(x) for x in range(2, 22)]] = result[['f'+str(x) for x in range(2, 22)]].astype('float')
         result['f22'] = pd.to_datetime(result['f22'],format='%Y%m%d')
         result['dff'] = (abs(pd.to_datetime(result['trade_date'])-result['f22'])/pd.Timedelta(1, 'D')).fillna(0).astype(int)
         result['rank'] = result['dff'].groupby(result['id']).rank()
         result = result[result['rank']==1]
         result = result[[ i for i in result.columns if i not in ['core_cust_id','prod_code','prod_type','trade_date','e2','f1','f22','dff','rank']]]
         result = result.fillna(-999)
-        result.to_csv(path+'/features/'+filename[2:100]+'_feature_basci.csv',index=False)
+        filename=self.train_or_test()
+        pickle.dump(result, open(os.path.join(self.path, 'features', filename[2:100], 'feature_basic.pkl'), 'wb'))
         print("===================>basic info feature merge success")
-
 
     def prod_type(self):
         """
@@ -110,11 +113,10 @@ class DataFeature(object):
         
         head_table = self.get_head_table()
         df = head_table.merge(app_df[['core_cust_id','r3','type','r5']],on='core_cust_id')
-        df[['trade_date']] = pd.to_datetime(df['trade_date'])
-        df[['r5']] = pd.to_datetime(df['r5'])
+        df['trade_date'] = pd.to_datetime(df['trade_date'])
+        df['r5'] = pd.to_datetime(df['r5'])
         df = df[df['trade_date']>=df['r5']]
         return(df)
-
 
     def app_info_feature(self,time_dff_list=[1]):
         df = self.app_info_df()
@@ -140,15 +142,18 @@ class DataFeature(object):
         
         result = result.fillna(-999)
         filename=self.train_or_test()
-        result.to_csv(path+'/features/'+filename[2:100]+'_feature_app.csv',index=False)
+        pickle.dump(result, open(os.path.join(self.path, 'features', filename[2:100], 'feature_app.pkl'), 'wb'))
         print("===================>app info feature merge success")
 
 
 if __name__ == '__main__':
-    path = '/Users/jiangdehao/Desktop/project/kaggle/data/A榜数据/'
+    import config
+    # path = '/Users/jiangdehao/Desktop/project/kaggle/data/A榜数据/'
+    path = config.data_o_dir+'/'
+    print(path)
     myDataFeature = DataFeature(path)
-    # myDataFeature.basci_info_feature()
-    myDataFeature.app_info_feature(time_dff_list=[3,7,15,30,90,180,360])
+    myDataFeature.basci_info_feature()
+    # myDataFeature.app_info_feature(time_dff_list=[3,7,15,30,90,180,360])
     # data = pd.read_csv('/Users/jiangdehao/Desktop/project/kaggle/data/A榜数据/features/train_feature_basci.csv')
 
 
